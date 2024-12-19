@@ -1,0 +1,6 @@
+assets
+build
+cross
+dep-*
+pkg-*
+gcc-* on * for *
