@@ -46,11 +46,11 @@ function prepare_source() {
     fi
     bsdtar -C build -xf assets/musl-1.2.5.tar.gz --no-same-owner
   fi
-  if [[ ! -d /opt/x-mingw32-ucrt-14 ]]; then
-    if [[ ! -f assets/x-mingw32-ucrt-14.2.0-r4.tar.zst ]]; then
-      curl -L https://github.com/redpanda-cpp/mingw-lite/releases/download/14.2.0-r4/x-mingw32-ucrt-14.2.0-r4.tar.zst -o assets/x-mingw32-ucrt-14.2.0-r4.tar.zst
+  if [[ ! -d /opt/x-mingw64-ucrt-14 ]]; then
+    if [[ ! -f assets/x-mingw64-ucrt-14.2.0-r4.tar.zst ]]; then
+      curl -L https://github.com/redpanda-cpp/mingw-lite/releases/download/14.2.0-r4/x-mingw64-ucrt-14.2.0-r4.tar.zst -o assets/x-mingw64-ucrt-14.2.0-r4.tar.zst
     fi
-    bsdtar -C / -xf assets/x-mingw32-ucrt-14.2.0-r4.tar.zst --no-same-owner
+    bsdtar -C / -xf assets/x-mingw64-ucrt-14.2.0-r4.tar.zst --no-same-owner
   fi
 }
 
@@ -127,7 +127,7 @@ function build__gnu_mingw_musl__binutils() {
     ../configure \
       --prefix=/ \
       --target=aarch64-linux-musl \
-      --host=i686-w64-mingw32 \
+      --host=x86_64-w64-mingw32 \
       --disable-multilib \
       --disable-nls \
       --with-static-standard-libraries \
@@ -141,10 +141,10 @@ function build__gnu_mingw_musl__binutils() {
 function build__gnu_mingw__gmp() {
   pushd build/gmp-6.3.0
   (
-    mkdir -p build-i686 && cd build-i686
+    mkdir -p build-x86_64 && cd build-x86_64
     ../configure \
-      --prefix=/mnt/dep-i686 \
-      --host=i686-w64-mingw32 \
+      --prefix=/mnt/dep-x86_64 \
+      --host=x86_64-w64-mingw32 \
       --disable-assembly \
       --enable-static \
       --disable-shared \
@@ -158,11 +158,11 @@ function build__gnu_mingw__gmp() {
 function build__gnu_mingw__mpfr() {
   pushd build/mpfr-4.2.1
   (
-    mkdir -p build-i686 && cd build-i686
+    mkdir -p build-x86_64 && cd build-x86_64
     ../configure \
-      --prefix=/mnt/dep-i686 \
-      --host=i686-w64-mingw32 \
-      --with-gmp=/mnt/dep-i686 \
+      --prefix=/mnt/dep-x86_64 \
+      --host=x86_64-w64-mingw32 \
+      --with-gmp=/mnt/dep-x86_64 \
       --enable-static \
       --disable-shared \
       CFLAGS=-O2 CXXFLAGS=-O2 LDFLAGS=-s
@@ -175,12 +175,12 @@ function build__gnu_mingw__mpfr() {
 function build__gnu_mingw__mpc() {
   pushd build/mpc-1.3.1
   (
-    mkdir -p build-i686 && cd build-i686
+    mkdir -p build-x86_64 && cd build-x86_64
     ../configure \
-      --prefix=/mnt/dep-i686 \
-      --host=i686-w64-mingw32 \
-      --with-gmp=/mnt/dep-i686 \
-      --with-mpfr=/mnt/dep-i686 \
+      --prefix=/mnt/dep-x86_64 \
+      --host=x86_64-w64-mingw32 \
+      --with-gmp=/mnt/dep-x86_64 \
+      --with-mpfr=/mnt/dep-x86_64 \
       --enable-static \
       --disable-shared \
       CFLAGS=-O2 CXXFLAGS=-O2 LDFLAGS=-s
@@ -199,7 +199,7 @@ function build__gnu_mingw_musl__gcc() {
       --libexecdir=//lib \
       --with-gcc-major-version-only \
       --target=aarch64-linux-musl \
-      --host=i686-w64-mingw32 \
+      --host=x86_64-w64-mingw32 \
       \
       --disable-plugin \
       --disable-shared \
@@ -214,12 +214,12 @@ function build__gnu_mingw_musl__gcc() {
       --disable-multilib \
       --disable-nls \
       \
-      --with-gmp=/mnt/dep-i686 \
+      --with-gmp=/mnt/dep-x86_64 \
       --without-libcc1 \
       --without-libiconv \
       --without-libintl \
-      --with-mpc=/mnt/dep-i686 \
-      --with-mpfr=/mnt/dep-i686 \
+      --with-mpc=/mnt/dep-x86_64 \
+      --with-mpfr=/mnt/dep-x86_64 \
       \
       CFLAGS=-O2 CXXFLAGS=-O2 LDFLAGS=-s \
       CFLAGS_FOR_TARGET=-O2 CXXFLAGS_FOR_TARGET=-O2 LDFLAGS_FOR_TARGET=-s
@@ -243,17 +243,17 @@ function create_unprefixed_tool() {
 }
 
 function package() {
-  if [[ ! -h 'gcc-14 on i686-w64-mingw32 for aarch64-linux-musl' ]]; then
-    ln -s pkg-aarch64 'gcc-14 on i686-w64-mingw32 for aarch64-linux-musl'
+  if [[ ! -h 'gcc-14 on x86_64-w64-mingw32 for aarch64-linux-musl' ]]; then
+    ln -s pkg-aarch64 'gcc-14 on x86_64-w64-mingw32 for aarch64-linux-musl'
   fi
   7z a -t7z \
     -mf=BCJ2 -mx9 -ms=on -mqs -m0=LZMA:d=64m:fb273 \
-    'gcc-14 on i686-w64-mingw32 for aarch64-linux-musl.7z' \
-    'gcc-14 on i686-w64-mingw32 for aarch64-linux-musl'
+    'gcc-14 on x86_64-w64-mingw32 for aarch64-linux-musl.7z' \
+    'gcc-14 on x86_64-w64-mingw32 for aarch64-linux-musl'
 }
 
 prepare_source
-export PATH=/mnt/cross/bin:/opt/x-mingw32-ucrt-14/bin:$PATH
+export PATH=/mnt/cross/bin:/opt/x-mingw64-ucrt-14/bin:$PATH
 build__gnu_gnu_musl__binutils
 build__gnu_musl__musl
 build__gnu_gnu_musl__gcc
