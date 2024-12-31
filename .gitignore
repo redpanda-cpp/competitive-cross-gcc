@@ -3,4 +3,4 @@ build
 cross
 dep-*
 pkg-*
-gcc-* on * for *
+gcc-*
