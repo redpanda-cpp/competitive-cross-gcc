@@ -1,0 +1,64 @@
+diff --git a/gdb/configure b/gdb/configure
+index 4b2906eb5bd..9f635ba058c 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -7109,10 +7109,6 @@ case $host_os in
+   go32* | *djgpp*)
+     ac_cv_search_tgetent="none required"
+     ;;
+-  *mingw32*)
+-    ac_cv_search_tgetent="none required"
+-    CONFIG_OBS="$CONFIG_OBS windows-termcap.o"
+-    ;;
+ esac
+ 
+ # These are the libraries checked by Readline.
+@@ -7174,7 +7170,7 @@ fi
+ 
+ 
+ if test "$ac_cv_search_tgetent" = no; then
+-  as_fn_error "no termcap library found" "$LINENO" 5
++  CONFIG_OBS="$CONFIG_OBS windows-termcap.o"
+ fi
+ 
+ 
+diff --git a/gdb/configure.ac b/gdb/configure.ac
+index c083e52cac9..d6838a26c84 100644
+--- a/gdb/configure.ac
++++ b/gdb/configure.ac
+@@ -626,17 +626,13 @@ case $host_os in
+   go32* | *djgpp*)
+     ac_cv_search_tgetent="none required"
+     ;;
+-  *mingw32*)
+-    ac_cv_search_tgetent="none required"
+-    CONFIG_OBS="$CONFIG_OBS windows-termcap.o"
+-    ;;
+ esac
+ 
+ # These are the libraries checked by Readline.
+ AC_SEARCH_LIBS(tgetent, [termcap tinfo curses ncurses])
+ 
+ if test "$ac_cv_search_tgetent" = no; then
+-  AC_MSG_ERROR([no termcap library found])
++  CONFIG_OBS="$CONFIG_OBS windows-termcap.o"
+ fi
+ 
+ AC_ARG_WITH([system-readline],
+diff --git a/gdb/windows-termcap.c b/gdb/windows-termcap.c
+index 7c258cfc73c..65d78c5073b 100644
+--- a/gdb/windows-termcap.c
++++ b/gdb/windows-termcap.c
+@@ -29,6 +29,12 @@ extern char* tgetstr (char *name, char **area);
+ extern int tputs (char *string, int nlines, int (*outfun) ());
+ extern char *tgoto (const char *cap, int col, int row);
+ 
++#ifndef __MINGW32__
++char PC __attribute__((weak));
++char *BC __attribute__((weak));
++char *UP __attribute__((weak));
++#endif
++
+ /* Each of the files below is a minimal implementation of the standard
+    termcap function with the same name, suitable for use in a Windows
+    console window.  */

@@ -1,0 +1,13 @@
+diff --git a/binutils/winduni.c b/binutils/winduni.c
+index f3fb2807060..7bcb38e4282 100644
+--- a/binutils/winduni.c
++++ b/binutils/winduni.c
+@@ -57,7 +57,7 @@ static int unichar_isascii (const unichar *, rc_uint_type);
+ /* Codepages mapped.  */
+ static local_iconv_map codepages[] =
+ {
+-  { 0, "MS-ANSI" },
++  { 0, "cp1252" },
+   { 1, "WINDOWS-1252" },
+   { 437, "MS-ANSI" },
+   { 737, "MS-GREEK" },

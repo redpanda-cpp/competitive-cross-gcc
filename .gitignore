@@ -1,6 +1,5 @@
+__pycache__
 assets
 build
-cross
-dep-*
-pkg-*
-gcc-*
+dist
+pkg

@@ -1,0 +1,44 @@
+diff --git a/gcc/gcc-main.cc b/gcc/gcc-main.cc
+index 75eca1a3127..f5968c9abdf 100644
+--- a/gcc/gcc-main.cc
++++ b/gcc/gcc-main.cc
+@@ -38,6 +38,39 @@ along with GCC; see the file COPYING3.  If not see
+ 
+ extern int main (int, char **);
+ 
++#ifdef __MINGW32__
++
++# define WIN32_LEAN_AND_MEAN
++# include <windows.h>
++
++struct __console_cp_init_t
++{
++  UINT saved_input_cp;
++  UINT saved_output_cp;
++
++  __console_cp_init_t()
++    : saved_input_cp(GetConsoleCP())
++    , saved_output_cp(GetConsoleOutputCP())
++  {
++    UINT cp = GetACP();
++    LCID lcid = GetThreadLocale();
++    SetConsoleCP(cp);
++    SetConsoleOutputCP(cp);
++    // `SetConsoleOutputCP` changed thread locale, restore it.
++    SetThreadLocale(lcid);
++  }
++
++  ~__console_cp_init_t()
++  {
++    SetConsoleCP(saved_input_cp);
++    SetConsoleOutputCP(saved_output_cp);
++  }
++};
++
++__console_cp_init_t __console_cp_init;
++
++#endif /* __MINGW32__ */
++
+ int
+ main (int argc, char **argv)
+ {

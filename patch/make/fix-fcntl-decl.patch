@@ -1,0 +1,12 @@
+diff --unified --recursive --text make-4.3.orig/lib/fcntl.in.h make-4.3/lib/fcntl.in.h
+--- make-4.3.orig/lib/fcntl.in.h
++++ make-4.3/lib/fcntl.in.h
+@@ -108,7 +108,7 @@
+                  "use gnulib module creat for portability");
+ #endif
+ 
+-#if @GNULIB_FCNTL@
++#if @GNULIB_FCNTL@ && !defined __MINGW32__
+ # if @REPLACE_FCNTL@
+ #  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+ #   undef fcntl

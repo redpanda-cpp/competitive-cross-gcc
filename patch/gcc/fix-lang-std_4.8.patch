@@ -1,0 +1,27 @@
+diff --git a/gcc/cp/cfns.h b/gcc/cp/cfns.h
+index 42dd3cfc067..ba48bbd1994 100644
+--- a/gcc/cp/cfns.h
++++ b/gcc/cp/cfns.h
+@@ -124,9 +124,6 @@ hash (register const char *str, register unsigned int len)
+ 
+ #ifdef __GNUC__
+ __inline
+-#ifdef __GNUC_STDC_INLINE__
+-__attribute__ ((__gnu_inline__))
+-#endif
+ #endif
+ const char *
+ libc_name_p (register const char *str, register unsigned int len)
+diff --git a/gcc/reload1.c b/gcc/reload1.c
+index cbb945d064e..055146ddc4a 100644
+--- a/gcc/reload1.c
++++ b/gcc/reload1.c
+@@ -440,7 +440,7 @@ init_reload (void)
+ 
+   while (memory_address_p (QImode, tem))
+     {
+-      spill_indirect_levels++;
++      spill_indirect_levels = 1;
+       tem = gen_rtx_MEM (Pmode, tem);
+     }
+ 

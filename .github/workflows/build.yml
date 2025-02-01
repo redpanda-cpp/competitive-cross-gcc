@@ -1,0 +1,50 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [
+          # C++17 era
+          15, 14, 13, 12, 11,
+          # C++14 era
+          10, 9, 8, 7, 6,
+          # C++98 era
+          5, '4.9', '4.8',
+        ]
+        include:
+          - prerelease: false
+          - { branch: 15, prerelease: true }
+          - make_latest: false
+          - { branch: 14, make_latest: true }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        if: github.ref_type != 'tag' || startsWith(github.ref_name, matrix.branch)
+        run: |
+          podman build -t competitive-cross-gcc/buildenv support/buildenv
+          podman run --rm -v $PWD:/mnt -w /mnt competitive-cross-gcc/buildenv \
+            ./main.py --branch ${{ matrix.branch }}
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        if: github.ref_type != 'tag' || startsWith(github.ref_name, matrix.branch)
+        with:
+          name: GCC ${{ matrix.branch }}
+          path: dist/
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, matrix.branch)
+        with:
+          prerelease: ${{ matrix.prerelease }}
+          make_latest: ${{ matrix.make_latest }}
+          files: |
+            dist/*.tar.zst

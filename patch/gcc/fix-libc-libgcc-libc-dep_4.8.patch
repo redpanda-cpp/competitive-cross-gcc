@@ -1,0 +1,13 @@
+diff --git a/gcc/config/gnu-user.h b/gcc/config/gnu-user.h
+index bcdf0e6cc5a..4690bf19cf6 100644
+--- a/gcc/config/gnu-user.h
++++ b/gcc/config/gnu-user.h
+@@ -86,7 +86,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ 
+ #undef LINK_GCC_C_SEQUENCE_SPEC
+ #define LINK_GCC_C_SEQUENCE_SPEC \
+-  "%{static:--start-group} %G %L %{static:--end-group}%{!static:%G}"
++  "%{static:--start-group} %G %L %{static:--end-group}%{!static:%G %L}"
+ 
+ /* Use --as-needed -lgcc_s for eh support.  */
+ #ifdef HAVE_LD_AS_NEEDED
