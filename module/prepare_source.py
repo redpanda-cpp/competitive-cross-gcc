@@ -1,77 +1,13 @@
-from hashlib import sha256
 import logging
 import os
 from packaging.version import Version
 from pathlib import Path
 from shutil import copyfile
 import subprocess
-from urllib.error import URLError
-from urllib.request import urlopen
 
-from module.checksum import CHECKSUMS
+from module.fetch import validate_and_download, check_and_extract
 from module.path import ProjectPaths
 from module.profile import BranchProfile
-
-def _validate_and_download(path: Path, url: str):
-  MAX_RETRY = 3
-  checksum = CHECKSUMS[path.name]
-  if path.exists():
-    with open(path, 'rb') as f:
-      body = f.read()
-      if checksum != sha256(body).hexdigest():
-        message = 'Validate fail: %s exists but checksum mismatch' % path.name
-        logging.critical(message)
-        logging.info('Please delete %s and try again' % path.name)
-        raise Exception(message)
-  else:
-    logging.info('Downloading %s' % path.name)
-    retry_count = 0
-    while True:
-      retry_count += 1
-      try:
-        response = urlopen(url)
-        body = response.read()
-        if checksum != sha256(body).hexdigest():
-          message = 'Download fail: checksum mismatch for %s' % path.name
-          logging.critical(message)
-          raise Exception(message)
-        with open(path, "wb") as f:
-          f.write(body)
-          return
-      except URLError as e:
-        message = 'Download fail: %s (retry %d/3)' % (e.reason, retry_count)
-        if retry_count < MAX_RETRY:
-          logging.warning(message)
-          logging.warning('Retrying...')
-        else:
-          logging.critical(message)
-          raise e
-
-def _check_and_extract(path: Path, arx: Path):
-  # check if already extracted
-  if path.exists():
-    mark = path / '.patched'
-    if mark.exists():
-      return False
-    else:
-      message = 'Extract fail: %s exists but not marked as fully patched' % path.name
-      logging.critical(message)
-      logging.info('Please delete %s and try again' % path.name)
-      raise Exception(message)
-
-  # extract
-  res = subprocess.run([
-    'bsdtar',
-    '-xf',
-    arx,
-    '--no-same-owner',
-  ], cwd = path.parent)
-  if res.returncode != 0:
-    message = 'Extract fail: bsdtar returned %d extracting %s' % (res.returncode, arx.name)
-    logging.critical(message)
-    raise Exception(message)
-
-  return True
 
 def _patch(path: Path, patch: Path):
   res = subprocess.run([
@@ -109,8 +45,8 @@ def _patch_done(path: Path):
 
 def _binutils(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/binutils/{paths.binutils_arx.name}'
-  _validate_and_download(paths.binutils_arx, url)
-  if _check_and_extract(paths.binutils, paths.binutils_arx):
+  validate_and_download(paths.binutils_arx, url)
+  if check_and_extract(paths.binutils, paths.binutils_arx):
     v = Version(ver.binutils)
 
     # Backport
@@ -154,8 +90,8 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths):
     url = f'https://gcc.gnu.org/pub/gcc/snapshots/{ver.gcc}/{paths.gcc_arx.name}'
   else:
     url = f'https://ftpmirror.gnu.org/gnu/gcc/gcc-{ver.gcc}/{paths.gcc_arx.name}'
-  _validate_and_download(paths.gcc_arx, url)
-  if _check_and_extract(paths.gcc, paths.gcc_arx):
+  validate_and_download(paths.gcc_arx, url)
+  if check_and_extract(paths.gcc, paths.gcc_arx):
     # Backport
     if v.major == 11:
       # - poisoned calloc when building with musl
@@ -253,8 +189,8 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths):
 
 def _gdb(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/gdb/{paths.gdb_arx.name}'
-  _validate_and_download(paths.gdb_arx, url)
-  if _check_and_extract(paths.gdb, paths.gdb_arx):
+  validate_and_download(paths.gdb_arx, url)
+  if check_and_extract(paths.gdb, paths.gdb_arx):
     v = Version(ver.gdb)
 
     # Backport
@@ -271,8 +207,8 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths):
 
 def _glibc(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/glibc/{paths.glibc_arx.name}'
-  _validate_and_download(paths.glibc_arx, url)
-  if _check_and_extract(paths.glibc, paths.glibc_arx):
+  validate_and_download(paths.glibc_arx, url)
+  if check_and_extract(paths.glibc, paths.glibc_arx):
     v = Version(ver.glibc)
 
     # Fix make 4.x
@@ -291,15 +227,15 @@ def _glibc(ver: BranchProfile, paths: ProjectPaths):
 
 def _gmp(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/gmp/{paths.gmp_arx.name}'
-  _validate_and_download(paths.gmp_arx, url)
-  _check_and_extract(paths.gmp, paths.gmp_arx)
+  validate_and_download(paths.gmp_arx, url)
+  check_and_extract(paths.gmp, paths.gmp_arx)
   _patch_done(paths.gmp)
 
 def _kernel(ver: BranchProfile, paths: ProjectPaths):
   v = Version(ver.kernel)
   url = f'https://cdn.kernel.org/pub/linux/kernel/v{v.major}.x/{paths.kernel_arx.name}'
-  _validate_and_download(paths.kernel_arx, url)
-  if _check_and_extract(paths.kernel, paths.kernel_arx):
+  validate_and_download(paths.kernel_arx, url)
+  if check_and_extract(paths.kernel, paths.kernel_arx):
     # Fix x86 reloc redefinition
     if v < Version('3.18'):
       _patch(paths.kernel, paths.patch / 'linux' / 'fix-x86-reloc-redefinition.patch')
@@ -308,8 +244,8 @@ def _kernel(ver: BranchProfile, paths: ProjectPaths):
 
 def _make(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/make/{paths.make_arx.name}'
-  _validate_and_download(paths.make_arx, url)
-  if _check_and_extract(paths.make, paths.make_arx):
+  validate_and_download(paths.make_arx, url)
+  if check_and_extract(paths.make, paths.make_arx):
     v = Version(ver.make)
 
     # Backport
@@ -324,23 +260,23 @@ def _make(ver: BranchProfile, paths: ProjectPaths):
 
 def _mingw(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/{paths.mingw_arx.name}'
-  _validate_and_download(paths.mingw_arx, url)
-  _check_and_extract(paths.mingw, paths.mingw_arx)
+  validate_and_download(paths.mingw_arx, url)
+  check_and_extract(paths.mingw, paths.mingw_arx)
   _patch_done(paths.mingw)
 
 def _mpc(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/mpc/{paths.mpc_arx.name}'
-  _validate_and_download(paths.mpc_arx, url)
-  _check_and_extract(paths.mpc, paths.mpc_arx)
+  validate_and_download(paths.mpc_arx, url)
+  check_and_extract(paths.mpc, paths.mpc_arx)
   _patch_done(paths.mpc)
 
 def _mpfr(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/mpfr/{paths.mpfr_arx.name}'
-  _validate_and_download(paths.mpfr_arx, url)
-  _check_and_extract(paths.mpfr, paths.mpfr_arx)
+  validate_and_download(paths.mpfr_arx, url)
+  check_and_extract(paths.mpfr, paths.mpfr_arx)
   _patch_done(paths.mpfr)
 
-def download_and_patch(ver: BranchProfile, paths: ProjectPaths):
+def prepare_source(ver: BranchProfile, paths: ProjectPaths):
   _binutils(ver, paths)
   _gcc(ver, paths)
   _gdb(ver, paths)

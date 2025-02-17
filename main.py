@@ -9,8 +9,9 @@ import shutil
 import subprocess
 from subprocess import PIPE, Popen
 
+from module.args import parse_args
 from module.path import ProjectPaths
-from module.prepare_source import download_and_patch
+from module.prepare_source import prepare_source
 from module.profile import BRANCHES
 
 # A = x86_64-linux-musl
@@ -23,68 +24,6 @@ from module.AAC import build_AAC_compiler, build_AAC_library
 from module.ABB import build_ABB_toolchain
 from module.ABC import build_ABC_toolchain, create_ABC_alias
 from module.ACC import build_ACC_gdbserver
-
-def get_gcc_triplet():
-  result = subprocess.run(['gcc', '-dumpmachine'], stdout = PIPE, stderr = PIPE)
-  if result.returncode != 0:
-    return None
-  return result.stdout.decode('utf-8').strip()
-
-def parse_args() -> argparse.Namespace:
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-    '-b', '--branch',
-    type = str,
-    choices = [
-      # C++17 era
-      '15', '14', '13', '12', '11',
-      # C++14 era
-      '10', '9', '8', '7', '6',
-      # C++98 era
-      '5', '4.9', '4.8',
-    ],
-    required = True,
-    help = 'GCC branch to build',
-  )
-
-  gcc_triplet = get_gcc_triplet()
-  parser.add_argument(
-    '--build',
-    type = str,
-    default = gcc_triplet,
-    required = not bool(gcc_triplet),
-    help = 'Build system triplet',
-  )
-
-  parser.add_argument(
-    '-c', '--clean',
-    action = 'store_true',
-    help = 'Clean build directories',
-  )
-  parser.add_argument(
-    '-j', '--jobs',
-    type = int,
-    default = os.cpu_count(),
-  )
-  parser.add_argument(
-    '-nx', '--no-cross',
-    action = 'store_true',
-    help = 'Do not build cross toolchain',
-  )
-  parser.add_argument(
-    '-nm', '--no-mingw',
-    action = 'store_true',
-    help = 'Do not build mingw toolchain',
-  )
-  parser.add_argument(
-    '-v', '--verbose',
-    action = 'count',
-    default = 0,
-    help = 'Increase verbosity (up to 2)',
-  )
-
-  result = parser.parse_args()
-  return result
 
 def clean(config: argparse.Namespace, paths: ProjectPaths):
   if paths.build.exists():
@@ -146,7 +85,7 @@ def main():
 
   prepare_dirs(paths)
 
-  download_and_patch(ver, paths)
+  prepare_source(ver, paths)
 
   # glibc prior to 2.31 can not be built with make 4.4 (infinite recursion)
   # upstream accidentally fixed it, cherry-pick seems very hard

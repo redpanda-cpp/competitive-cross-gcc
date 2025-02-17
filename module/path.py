@@ -12,9 +12,6 @@ class ProjectPaths:
   dist: Path
   patch: Path
 
-  build: Path
-  x_dep: Path
-
   linux_prefix: Callable[[str], Path]
   mingw_prefix: Path
   x_prefix: Path
@@ -22,6 +19,11 @@ class ProjectPaths:
   linux_pkg: Callable[[str], Path]
   mingw_pkg: Path
   x_pkg: Path
+
+  # build phase
+
+  build: Path
+  x_dep: Path
 
   binutils: Path
   gcc: Path
@@ -45,6 +47,20 @@ class ProjectPaths:
   mpc_arx: Path
   mpfr_arx: Path
 
+  # test phase
+
+  test: Path
+  test_src: Path
+  chimaera_src: Path
+  chimaera_exe: Path
+
+  test_linux: Callable[[str], Path]
+  test_mingw: Path
+
+  xmake: Path
+  xmake_arx: Path
+  xmake_exe: Path
+
   def __init__(
     self,
     config: argparse.Namespace,
@@ -55,9 +71,6 @@ class ProjectPaths:
     self.assets = self.root / 'assets'
     self.dist = self.root / 'dist'
     self.patch = self.root / 'patch'
-
-    self.build = Path(f'/tmp/build/gcc-{config.branch}')
-    self.x_dep = self.build / 'dep'
 
     GLIBC_LD_NAME_MAP = {
       'aarch64': 'linux-aarch64',
@@ -71,6 +84,11 @@ class ProjectPaths:
     self.linux_pkg = lambda arch: self.dist / f'gcc-{GLIBC_LD_NAME_MAP[arch]}-{ver.gcc}-r{ver.rev}.tar.zst'
     self.mingw_pkg = self.dist / f'gcc-mingw64-{ver.gcc}-r{ver.rev}.tar.zst'
     self.x_pkg = self.dist / f'gcc-x-{ver.gcc}-r{ver.rev}.tar.zst'
+
+    # build phase
+
+    self.build = Path(f'/tmp/build/gcc-{config.branch}')
+    self.x_dep = self.build / 'dep'
 
     binutils = f'binutils-{ver.binutils}'
     self.binutils = self.build / binutils
@@ -131,3 +149,17 @@ class ProjectPaths:
     mpfr = f'mpfr-{ver.mpfr}'
     self.mpfr = self.build / mpfr
     self.mpfr_arx = self.assets / f'{mpfr}.tar.xz'
+
+    # test phase
+
+    self.test = Path(f'/tmp/test/gcc-{config.branch}')
+    self.test_src = self.root / 'support' / 'test'
+    self.chimaera_src = self.root / 'support' / 'chimaera' / 'main.cc'
+    self.chimaera_exe = self.test / 'chimaera.exe.so'
+
+    self.test_linux = lambda arch: self.test / f'gcc-{GLIBC_LD_NAME_MAP[arch]}-{config.branch}'
+    self.test_mingw = self.test / f'gcc-mingw64-{config.branch}'
+
+    self.xmake = self.test / 'xmake'
+    self.xmake_arx = self.assets / f'xmake-v{ver.xmake}.win64.zip'
+    self.xmake_exe = self.xmake / 'xmake.exe'

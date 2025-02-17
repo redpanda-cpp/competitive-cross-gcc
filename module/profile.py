@@ -17,6 +17,8 @@ class BranchProfile:
   enable_kernel: Callable[[str], str]
   win32_winnt: int
 
+  xmake: str = '2.9.8'
+
   def __init__(
     self,
 

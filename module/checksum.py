@@ -100,4 +100,6 @@ CHECKSUMS: Dict[str, str] = {
   'mpfr-4.0.2.tar.xz': '1d3be708604eae0e42d578ba93b390c2a145f17743a744d8f3f8c2ad5855a38a',
   'mpfr-4.1.1.tar.xz': 'ffd195bd567dbaffc3b98b23fd00aad0537680c9896171e44fe3ff79e28ac33d',
   'mpfr-4.2.1.tar.xz': '277807353a6726978996945af13e52829e3abd7a9a5b7fb2793894e18f1fcbb2',
+
+  'xmake-v2.9.8.win64.zip': '5ba90e491f911b86dfc53c13cd9c849ea777567075d655641ed6028fcb956e35',
 }

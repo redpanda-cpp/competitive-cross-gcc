@@ -26,6 +26,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: ConorMacBride/install-package@v1
+        with:
+          apt: libarchive-tools qemu-user qemu-user-binfmt wine wine64-tools
+
+      # apt install wine-binfmt seems not work
+      - name: Register wine binfmt
+        run: |
+          echo ':DOSWin:M::MZ::/usr/bin/wine:' | sudo tee /proc/sys/fs/binfmt_misc/register
+
       - name: Build
         if: github.ref_type != 'tag' || startsWith(github.ref_name, matrix.branch)
         run: |
@@ -39,6 +48,11 @@ jobs:
         with:
           name: GCC ${{ matrix.branch }}
           path: dist/
+
+      - name: Test
+        if: github.ref_type != 'tag' || startsWith(github.ref_name, matrix.branch)
+        run: |
+          ./test.py --branch ${{ matrix.branch }} -v
 
       - name: Release
         uses: softprops/action-gh-release@v2
