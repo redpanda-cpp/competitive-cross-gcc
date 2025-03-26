@@ -130,7 +130,7 @@ def _gcc(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Na
     '--enable-languages=c,c++',
     '--disable-libmpx',
     '--disable-multilib',
-    '--disable-nls',
+    '--enable-nls',
     # packages
     '--without-libcc1',
     *config_flags,

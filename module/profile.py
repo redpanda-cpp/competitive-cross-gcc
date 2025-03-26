@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 class BranchProfile:
   gcc: str
@@ -6,6 +6,7 @@ class BranchProfile:
 
   binutils: str
   gdb: str
+  gettext: Optional[str]
   glibc: str
   gmp: str
   kernel: str
@@ -27,6 +28,7 @@ class BranchProfile:
 
     binutils: str,
     gdb: str,
+    gettext: Optional[str],
     glibc: str,
     gmp: str,
     kernel: str,
@@ -43,6 +45,7 @@ class BranchProfile:
 
     self.binutils = binutils
     self.gdb = gdb
+    self.gettext = gettext
     self.glibc = glibc
     self.gmp = gmp
     self.kernel = kernel
@@ -61,6 +64,7 @@ BRANCHES: dict[str, BranchProfile] = {
 
     binutils = '2.44',
     gdb = '16.2',
+    gettext = '0.24',
     glibc = '2.41',
     gmp = '6.3.0',
     kernel = '6.12.11',
@@ -79,6 +83,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2025-01-01
     binutils = '2.43.1',
     gdb = '15.2',
+    gettext = '0.23.1',
     glibc = '2.40',
     gmp = '6.3.0',
     kernel = '6.12.11',
@@ -97,6 +102,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2024-01-01
     binutils = '2.41',
     gdb = '14.2',
+    gettext = None,
     glibc = '2.38',
     gmp = '6.3.0',
     kernel = '6.6.74',
@@ -115,6 +121,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2023-01-01
     binutils = '2.39',
     gdb = '12.1',
+    gettext = None,
     glibc = '2.36',
     gmp = '6.2.1',
     kernel = '6.1.127',
@@ -133,6 +140,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2022-01-01
     binutils = '2.37',
     gdb = '11.2',
+    gettext = None,
     glibc = '2.34',
     gmp = '6.2.1',
     kernel = '5.15.177',
@@ -151,6 +159,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2021-01-01
     binutils = '2.35.2',
     gdb = '10.2',
+    gettext = None,
     glibc = '2.32',
     gmp = '6.2.1',
     kernel = '5.10.233',
@@ -169,6 +178,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2020-01-01
     binutils = '2.33.1',
     gdb = '8.3.1',
+    gettext = None,
     glibc = '2.30',
     gmp = '6.1.2',
     kernel = '5.4.289',
@@ -187,6 +197,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2019-01-01
     binutils = '2.31.1',
     gdb = '8.2.1',
+    gettext = None,
     glibc = '2.28',
     gmp = '6.1.2',
     kernel = '4.19.325',
@@ -205,6 +216,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2018-01-01
     binutils = '2.29.1',
     gdb = '8.0.1',
+    gettext = None,
     glibc = '2.26',
     gmp = '6.1.2',
     kernel = '4.14.336',
@@ -223,6 +235,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2017-01-01
     binutils = '2.27',
     gdb = '7.12.1',
+    gettext = None,
     glibc = '2.24',
     gmp = '6.1.2',
     kernel = '4.9.337',
@@ -241,6 +254,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2016-01-01
     binutils = '2.25.1',
     gdb = '7.10.1',
+    gettext = None,
     glibc = '2.22',
     gmp = '6.1.2',
     kernel = '4.4.302',  # slightly postponed for annual LTS
@@ -259,6 +273,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2015-01-01
     binutils = '2.25.1',
     gdb = '7.8.2',
+    gettext = None,
     glibc = '2.20',
     gmp = '5.1.3',
     make = '4.1',
@@ -277,6 +292,7 @@ BRANCHES: dict[str, BranchProfile] = {
     # freeze: 2014-01-01
     binutils = '2.24',
     gdb = '7.6.2',
+    gettext = None,
     glibc = '2.18',
     gmp = '5.1.3',
     kernel = '3.12.74',

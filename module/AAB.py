@@ -233,9 +233,26 @@ def _mpc(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
       else:
         f.write(line)
 
+def _gettext(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
+  build_dir = paths.gettext / 'gettext-runtime' / 'build-AAB'
+  ensure(build_dir)
+  configure('gettext', build_dir, [
+    '--prefix=',
+    '--host=x86_64-w64-mingw32',
+    f'--build={config.build}',
+    '--enable-static',
+    '--disable-shared',
+    *cflags_B(),
+  ])
+  make_default('gettext', build_dir, config.jobs)
+  make_destdir_install('gettext', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
+
 def build_AAB_library(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   _gmp(ver, paths, config)
 
   _mpfr(ver, paths, config)
 
   _mpc(ver, paths, config)
+
+  if ver.gettext:
+    _gettext(ver, paths, config)

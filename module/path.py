@@ -28,6 +28,7 @@ class ProjectPaths:
   binutils: Path
   gcc: Path
   gdb: Path
+  gettext: Path
   glibc: Path
   gmp: Path
   kernel: Path
@@ -39,6 +40,7 @@ class ProjectPaths:
   binutils_arx: Path
   gcc_arx: Path
   gdb_arx: Path
+  gettext_arx: Path
   glibc_arx: Path
   gmp_arx: Path
   kernel_arx: Path
@@ -112,6 +114,14 @@ class ProjectPaths:
       self.gdb_arx = self.assets / f'{gdb}.tar.xz'
     else:
       self.gdb_arx = self.assets / f'{gdb}.tar.bz2'
+
+    if ver.gettext:
+      gettext = f'gettext-{ver.gettext}'
+      self.gettext = self.build / gettext
+      self.gettext_arx = self.assets / f'{gettext}.tar.xz'
+    else:
+      self.gettext = None
+      self.gettext_arx = None
 
     glibc = f'glibc-{ver.glibc}'
     self.glibc = self.build / glibc

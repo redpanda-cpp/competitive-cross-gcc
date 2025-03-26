@@ -112,7 +112,7 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
     '--enable-languages=c,c++',
     '--disable-libmpx',
     '--disable-multilib',
-    '--disable-nls',
+    '--enable-nls',
     '--enable-threads=posix',
     # packages
     '--without-libcc1',

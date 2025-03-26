@@ -157,6 +157,30 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths):
     elif v.major >= 8:
       _patch(paths.gcc, paths.patch / 'gcc' / 'fix-vt-seq_8.patch')
 
+    # Fix locale directory
+    if v.major >= 12:
+      _patch(paths.gcc, paths.patch / 'gcc' / 'fix-localedir_12.patch')
+    else:
+      _patch(paths.gcc, paths.patch / 'gcc' / 'fix-localedir_4.8.patch')
+
+    # Fix libcpp setlocale
+    # libcpp defines `setlocale` if `HAVE_SETLOCALE` not defined, but its configure.ac does not check `setlocale` at all
+    _patch(paths.gcc, paths.patch / 'gcc' / 'fix-libcpp-setlocale.patch')
+
+    # Parser-friendly diagnostics
+    po_dir = paths.gcc / 'gcc' / 'po'
+    po_files = list(po_dir.glob('*.po'))
+    res = subprocess.run([
+      'sed',
+      '-iE',
+      '/^msgid "(error|warning): "/,+1 d',
+      *po_files
+    ])
+    if res.returncode != 0:
+      message = 'Patch fail: applying gcc parser-friendly diagnostics'
+      logging.critical(message)
+      raise Exception(message)
+
     # Fix console code page
     if v.major >= 13:
       _patch(paths.gcc, paths.patch / 'gcc' / 'fix-console-cp.patch')
@@ -200,6 +224,12 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths):
       _patch(paths.gdb, paths.patch / 'gdb' / 'backport-stub-termcap_7.6.2.patch')
 
     _patch_done(paths.gdb)
+
+def _gettext(ver: BranchProfile, paths: ProjectPaths):
+  url = f'https://ftpmirror.gnu.org/gnu/gettext/{paths.gettext_arx.name}'
+  validate_and_download(paths.gettext_arx, url)
+  check_and_extract(paths.gettext, paths.gettext_arx)
+  _patch_done(paths.gettext)
 
 def _glibc(ver: BranchProfile, paths: ProjectPaths):
   url = f'https://ftpmirror.gnu.org/gnu/glibc/{paths.glibc_arx.name}'
@@ -276,6 +306,8 @@ def prepare_source(ver: BranchProfile, paths: ProjectPaths):
   _binutils(ver, paths)
   _gcc(ver, paths)
   _gdb(ver, paths)
+  if ver.gettext:
+    _gettext(ver, paths)
   _glibc(ver, paths)
   _gmp(ver, paths)
   _kernel(ver, paths)
