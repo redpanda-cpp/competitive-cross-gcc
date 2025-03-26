@@ -116,10 +116,6 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths):
       # - someone declared `bool error_p = NULL`, it works until musl 1.2 defines NULL to nullptr
       _patch(paths.gcc, paths.patch / 'gcc' / 'backport_5.patch')
 
-    # Fix std module preprocessor condition
-    if v.major == 15:
-      _patch(paths.gcc, paths.patch / 'gcc' / 'fix-std-module-pp-cond.patch')
-
     # Fix failure due to language standard evolve
     if v.major >= 6:
       pass

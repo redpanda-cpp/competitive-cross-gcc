@@ -140,17 +140,6 @@ def _gcc(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
       logging.critical(message)
       raise Exception(message)
 
-  # fix wrong source path in `libstdc++.modules.json`
-  if 15 <= v.major < 16:
-    libstdcxx_modules_json = paths.mingw_prefix / 'lib' / 'libstdc++.modules.json'
-    with open(libstdcxx_modules_json, 'r') as f:
-      data = json.load(f)
-      for module in data['modules']:
-        if module['source-path'].startswith('/include'):
-          module['source-path'] = '..' + module['source-path']
-    with open(libstdcxx_modules_json, 'w') as f:
-      json.dump(data, f, indent = 2)
-
 def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   v = Version(ver.gdb)
   v_gcc = Version(ver.gcc)
