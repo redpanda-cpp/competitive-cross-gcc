@@ -2,7 +2,7 @@ import logging
 import os
 from packaging.version import Version
 from pathlib import Path
-from shutil import copyfile
+import shutil
 import subprocess
 
 from module.fetch import validate_and_download, check_and_extract
@@ -223,6 +223,10 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths):
     elif v == Version('7.6.2'):
       _patch(paths.gdb, paths.patch / 'gdb' / 'backport-stub-termcap_7.6.2.patch')
 
+    # Fix pythondir
+    if ver.python:
+      _patch(paths.gdb, paths.patch / 'gdb' / 'fix-pythondir.patch')
+
     _patch_done(paths.gdb)
 
 def _gettext(ver: BranchProfile, paths: ProjectPaths):
@@ -302,6 +306,19 @@ def _mpfr(ver: BranchProfile, paths: ProjectPaths):
   check_and_extract(paths.mpfr, paths.mpfr_arx)
   _patch_done(paths.mpfr)
 
+def _python(ver: BranchProfile, paths: ProjectPaths):
+  url = f'https://www.python.org/ftp/python/{ver.python}/{paths.python_arx.name}'
+  z_url = f'https://zlib.net/fossils/{paths.python_z_arx.name}'
+  validate_and_download(paths.python_arx, url)
+  validate_and_download(paths.python_z_arx, z_url)
+  if check_and_extract(paths.python, paths.python_arx):
+    check_and_extract(paths.python_z, paths.python_z_arx)
+    os.symlink(paths.python_z, paths.python / 'zlib', target_is_directory = True)
+    shutil.copy(paths.patch / 'python' / 'xmake.lua', paths.python / 'xmake.lua')
+    shutil.copy(paths.patch / 'python' / 'python-config.sh', paths.python / 'python-config.sh')
+    _patch(paths.python, paths.patch / 'python' / 'fix-mingw-build.patch')
+    _patch_done(paths.python)
+
 def prepare_source(ver: BranchProfile, paths: ProjectPaths):
   _binutils(ver, paths)
   _gcc(ver, paths)
@@ -315,3 +332,5 @@ def prepare_source(ver: BranchProfile, paths: ProjectPaths):
   _mingw(ver, paths)
   _mpc(ver, paths)
   _mpfr(ver, paths)
+  if ver.python:
+    _python(ver, paths)

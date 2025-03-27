@@ -14,6 +14,8 @@ class BranchProfile:
   mingw: str
   mpc: str
   mpfr: str
+  python: Optional[str]
+  python_z: Optional[str]
 
   enable_kernel: Callable[[str], str]
   win32_winnt: int
@@ -36,6 +38,8 @@ class BranchProfile:
     mingw: str,
     mpc: str,
     mpfr: str,
+    python: Optional[str],
+    python_z: Optional[str],
 
     enable_kernel: Callable[[str], str],
     win32_winnt: int,
@@ -53,6 +57,8 @@ class BranchProfile:
     self.mingw = mingw
     self.mpc = mpc
     self.mpfr = mpfr
+    self.python = python
+    self.python_z = python_z
 
     self.enable_kernel = enable_kernel
     self.win32_winnt = win32_winnt
@@ -72,6 +78,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '12.0.0',
     mpc = '1.3.1',
     mpfr = '4.2.1',
+    python = '3.13.2',
+    python_z = '1.3.1',
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0A00,
@@ -91,6 +99,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '12.0.0',
     mpc = '1.3.1',
     mpfr = '4.2.1',
+    python = '3.13.2',
+    python_z = '1.3.1',
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0A00,
@@ -110,6 +120,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '11.0.1',
     mpc = '1.3.1',
     mpfr = '4.2.1',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0A00,
@@ -129,6 +141,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '10.0.0',
     mpc = '1.3.1',
     mpfr = '4.1.1',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0603,
@@ -148,6 +162,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '9.0.0',
     mpc = '1.2.1',
     mpfr = '4.1.1',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0603,
@@ -167,6 +183,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '8.0.3',
     mpc = '1.2.1',
     mpfr = '4.1.1',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0603,
@@ -186,6 +204,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '7.0.0',
     mpc = '1.1.0',
     mpfr = '4.0.2',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '3.16.0',
     win32_winnt = 0x0601,
@@ -205,6 +225,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '6.0.1',
     mpc = '1.1.0',
     mpfr = '4.0.2',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda _: '3.16.0',
     win32_winnt = 0x0601,
@@ -224,6 +246,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '5.0.5',
     mpc = '1.0.3',
     mpfr = '3.1.6',  # mpfr 4.0 released, but mpc was not ready
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda arch: '3.16.0' if arch == 'aarch64' else '3.2.0',
     win32_winnt = 0x0601,
@@ -243,6 +267,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '5.0.5',
     mpc = '1.0.3',
     mpfr = '3.1.6',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda arch: '3.10.0' if arch == 'aarch64' else '3.2.0',
     win32_winnt = 0x0600,
@@ -262,6 +288,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '4.0.6',
     mpc = '1.0.3',
     mpfr = '3.1.6',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda arch: '3.10.0' if arch == 'aarch64' else '2.6.32',
     win32_winnt = 0x0600,
@@ -281,6 +309,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '3.3.0',
     mpc = '1.0.3',
     mpfr = '3.1.6',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda arch: '3.10.0' if arch == 'aarch64' else '2.6.32',
     win32_winnt = 0x0600,
@@ -300,6 +330,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '3.3.0',
     mpc = '1.0.3',
     mpfr = '3.1.6',
+    python = None,
+    python_z = None,
 
     enable_kernel = lambda arch: '3.10.0' if arch == 'aarch64' else '2.6.32',
     win32_winnt = 0x0502,

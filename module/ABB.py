@@ -146,7 +146,11 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   build_dir = paths.gdb / 'build-ABB'
   ensure(build_dir)
 
+  python_flags = []
   c_extra = []
+
+  if ver.python:
+    python_flags.append(f'--with-python={paths.x_prefix}/x86_64-w64-mingw32/python-config.sh')
 
   # GCC 15 defaults to C23, in which `foo()` means `foo(void)` instead of `foo(...)`.
   if v_gcc.major >= 15 and v < Version('16.3'):
@@ -161,6 +165,7 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
     '--disable-tui',
     # packages
     f'--with-system-gdbinit=/share/gdb/gdbinit',
+    *python_flags,
     *cflags_B(
       common_extra = ['-DPDC_WIDE'],
       c_extra = c_extra
@@ -168,6 +173,16 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   ])
   make_default('gdb', build_dir, config.jobs)
   make_destdir_install('gdb', build_dir, paths.mingw_prefix)
+
+  if ver.python:
+    shutil.copy(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'python.zip', paths.mingw_prefix / 'lib' / 'python.zip')
+    with open(paths.mingw_prefix / 'bin' / 'gdb._pth', 'w') as f:
+      f.write('../lib/python.zip\n')
+    with open(paths.mingw_prefix / 'share' / 'gdb' / 'gdbinit', 'w') as f:
+      f.write('python\n')
+      f.write('from libstdcxx.v6.printers import register_libstdcxx_printers\n')
+      f.write('register_libstdcxx_printers(None)\n')
+      f.write('end\n')
 
 def _gmake(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   v = Version(ver.make)

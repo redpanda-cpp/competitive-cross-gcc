@@ -23,8 +23,8 @@ The build script requires root privileges, so AN EXCLUSIVE DISTRO is highly reco
    ```bash
    apk update
    apk add \
-     autoconf automake bison build-base flex libtool rsync texinfo \
-     ca-certificates curl file gawk libarchive-tools py3-packaging python3 zstd
+     autoconf automake bison build-base flex libtool rsync texinfo xmake \
+     7zip ca-certificates curl file gawk libarchive-tools py3-packaging python3 zstd
    ```
 
 ## Clone the Repository

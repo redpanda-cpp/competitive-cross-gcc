@@ -36,6 +36,8 @@ class ProjectPaths:
   mingw: Path
   mpc: Path
   mpfr: Path
+  python: Path
+  python_z: Path
 
   binutils_arx: Path
   gcc_arx: Path
@@ -48,6 +50,8 @@ class ProjectPaths:
   mingw_arx: Path
   mpc_arx: Path
   mpfr_arx: Path
+  python_arx: Path
+  python_z_arx: Path
 
   # test phase
 
@@ -159,6 +163,19 @@ class ProjectPaths:
     mpfr = f'mpfr-{ver.mpfr}'
     self.mpfr = self.build / mpfr
     self.mpfr_arx = self.assets / f'{mpfr}.tar.xz'
+
+    if ver.python:
+      python = f'Python-{ver.python}'
+      python_z = f'zlib-{ver.python_z}'
+      self.python = self.build / python
+      self.python_arx = self.assets / f'{python}.tar.xz'
+      self.python_z = self.build / python / python_z
+      self.python_z_arx = self.assets / f'{python_z}.tar.gz'
+    else:
+      self.python = None
+      self.python_arx = None
+      self.python_z = None
+      self.python_z_arx = None
 
     # test phase
 

@@ -18,7 +18,7 @@ from module.profile import BRANCHES
 # B = x86_64-w64-mingw32
 # C = {aarch64,x86_64}-linux-gnu
 # XYZ: build = X, host = Y, target = Z
-from module.AAA import build_AAA_make, build_AAA_library
+from module.AAA import build_AAA_make, build_AAA_library, build_AAA_python
 from module.AAB import build_AAB_compiler, build_AAB_library
 from module.AAC import build_AAC_compiler, build_AAC_library
 from module.ABB import build_ABB_toolchain
@@ -97,6 +97,7 @@ def main():
   os.environ['PATH'] = f'{paths.x_prefix}/bin:{os.environ["PATH"]}'
   if not config.no_cross:
     build_AAA_library(ver, paths, config)
+    build_AAA_python(ver, paths, config)
     build_AAC_compiler('x86_64', ver, paths, config)
     build_AAC_library('x86_64', ver, paths, config)
     build_AAC_compiler('aarch64', ver, paths, config)

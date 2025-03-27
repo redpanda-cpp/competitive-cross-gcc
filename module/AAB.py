@@ -1,5 +1,7 @@
 import argparse
 from packaging.version import Version
+import shutil
+import subprocess
 
 from module.debug import shell_here
 from module.path import ProjectPaths
@@ -247,6 +249,49 @@ def _gettext(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace
   make_default('gettext', build_dir, config.jobs)
   make_destdir_install('gettext', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
 
+def _python(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
+  res = subprocess.run([
+    'xmake', 'config', '--root',
+    '-p', 'mingw',
+    '-a', 'x86_64',
+    f'--mingw={paths.x_prefix}',
+    f'--cross=x86_64-w64-mingw32-',
+  ], cwd = paths.python)
+  if res.returncode != 0:
+    raise Exception('xmake config failed')
+  res = subprocess.run([
+    'xmake', 'build', '--root',
+    '-j', str(config.jobs),
+  ], cwd = paths.python)
+  if res.returncode != 0:
+    raise Exception('xmake build failed')
+  res = subprocess.run([
+    'xmake', 'install', '--root',
+    '-o', paths.x_prefix / 'x86_64-w64-mingw32',
+  ], cwd = paths.python)
+  if res.returncode != 0:
+    raise Exception('xmake install failed')
+
+def _python_packages(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
+  x_prefix_mingw = paths.x_prefix / 'x86_64-w64-mingw32'
+  python_lib = x_prefix_mingw / 'Lib'
+  python_lib_zip = x_prefix_mingw / 'lib' / 'python.zip'
+  shutil.copytree(paths.x_prefix / 'share' / f'gcc-{config.branch}' / 'python', python_lib, dirs_exist_ok = True)
+  subprocess.run([
+    'python3', '-m', 'compileall',
+    '-b',
+    '-o', '2',
+    '.',
+  ], check = True, cwd = python_lib)
+  if python_lib_zip.exists():
+    python_lib_zip.unlink()
+  subprocess.run([
+    '7z', 'a', '-tzip',
+    '-mx0',  # no compression, reduce final size
+    python_lib_zip,
+    '*', '-xr!__pycache__', '-xr!*.py',
+  ], check = True, cwd = python_lib)
+
 def build_AAB_library(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   _gmp(ver, paths, config)
 
@@ -256,3 +301,7 @@ def build_AAB_library(ver: BranchProfile, paths: ProjectPaths, config: argparse.
 
   if ver.gettext:
     _gettext(ver, paths, config)
+
+  if ver.python:
+    _python(ver, paths, config)
+    _python_packages(ver, paths, config)

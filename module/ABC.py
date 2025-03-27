@@ -1,8 +1,9 @@
 import argparse
 import glob
 import os
-import shutil
 from packaging.version import Version
+import shutil
+import subprocess
 
 from module.debug import shell_here
 from module.path import ProjectPaths
@@ -148,7 +149,11 @@ def _gdb(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Na
   build_dir = paths.gdb / f'build-ABC-{arch}'
   ensure(build_dir)
 
+  python_flags = []
   c_extra = []
+
+  if ver.python:
+    python_flags.append(f'--with-python={paths.x_prefix}/x86_64-w64-mingw32/python-config.sh')
 
   # GCC 15 defaults to C23, in which `foo()` means `foo(void)` instead of `foo(...)`.
   if v_gcc.major >= 15 and v < Version('16.3'):
@@ -168,6 +173,8 @@ def _gdb(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Na
     '--disable-tui',
     # packages
     '--without-gdbserver',
+    '--with-system-gdbinit=/share/gdb/gdbinit',
+    *python_flags,
     # libtool eats `-static`
     *cflags_B(
       c_extra = c_extra,
@@ -176,6 +183,16 @@ def _gdb(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Na
   ])
   make_default('gdb', build_dir, config.jobs)
   make_destdir_install('gdb', build_dir, paths.linux_prefix(arch))
+
+  if ver.python:
+    shutil.copy(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'python.zip', paths.linux_prefix(arch) / 'lib' / 'python.zip')
+    with open(paths.linux_prefix(arch) / 'bin' / 'gdb._pth', 'w') as f:
+      f.write('../lib/python.zip\n')
+    with open(paths.linux_prefix(arch) / 'share' / 'gdb' / 'gdbinit', 'w') as f:
+      f.write('python\n')
+      f.write('from libstdcxx.v6.printers import register_libstdcxx_printers\n')
+      f.write('register_libstdcxx_printers(None)\n')
+      f.write('end\n')
 
 def _gmake(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   v = Version(ver.make)
