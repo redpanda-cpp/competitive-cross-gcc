@@ -37,11 +37,28 @@ def _kernel_headers(arch: str, ver: BranchProfile, paths: ProjectPaths, config: 
     'aarch64': 'arm64',
     'x86_64': 'x86',
   }
+
+  prefix = paths.linux_prefix(arch) / f'{arch}-linux-gnu'
+
   make_custom('kernel headers', paths.kernel, [
     'headers_install',
     f'ARCH={KARCH_MAP[arch]}',
-    f'INSTALL_HDR_PATH={paths.linux_prefix(arch)}/{arch}-linux-gnu',
+    f'INSTALL_HDR_PATH={prefix}',
   ], config.jobs)
+
+  # remove hidden files `.install` and `..install.cmd`
+  for file in prefix.glob('**/.install'):
+    file.unlink()
+  for file in prefix.glob('**/..install.cmd'):
+    file.unlink()
+
+  # netfilter has pairs of files that only differ in case
+  # here we simply remove related headers
+  for file in prefix.glob('include/linux/netfilter*'):
+    if file.is_dir():
+      shutil.rmtree(file)
+    else:
+      file.unlink()
 
 def _glibc(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   v = Version(ver.glibc)
