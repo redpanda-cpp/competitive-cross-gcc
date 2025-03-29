@@ -329,6 +329,6 @@ target('pythoncore')
       {'frozen_only', 'Tools/freeze/flag.py', 'Python/frozen_modules/frozen_only.h'},
     }
     for _, module in ipairs(modules) do
-      os.execv('python3', {'Programs/_freeze_module.py', module[1], module[2], module[3]})
+      os.execv('python3.13', {'Programs/_freeze_module.py', module[1], module[2], module[3]})
     end
   end)

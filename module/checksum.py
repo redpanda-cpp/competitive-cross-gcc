@@ -1,6 +1,7 @@
 from typing import Dict
 
 CHECKSUMS: Dict[str, str] = {
+  'Python-3.12.9.tar.xz': '7220835d9f90b37c006e9842a8dff4580aaca4318674f947302b8d28f3f81112',
   'Python-3.13.2.tar.xz': 'd984bcc57cd67caab26f7def42e523b1c015bbc5dc07836cf4f0b63fa159eb56',
 
   'binutils-2.24.tar.bz2': 'e5e8c5be9664e7f7f96e0d09919110ab5ad597794f5b1809871177a0f0f14137',

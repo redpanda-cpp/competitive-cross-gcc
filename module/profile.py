@@ -120,8 +120,8 @@ BRANCHES: dict[str, BranchProfile] = {
     mingw = '11.0.1',
     mpc = '1.3.1',
     mpfr = '4.2.1',
-    python = None,
-    python_z = None,
+    python = '3.12.9',
+    python_z = '1.3.1',
 
     enable_kernel = lambda _: '4.4.0',
     win32_winnt = 0x0A00,

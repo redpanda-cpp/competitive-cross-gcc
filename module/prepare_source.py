@@ -312,11 +312,23 @@ def _python(ver: BranchProfile, paths: ProjectPaths):
   validate_and_download(paths.python_arx, url)
   validate_and_download(paths.python_z_arx, z_url)
   if check_and_extract(paths.python, paths.python_arx):
+    ver = Version(ver.python)
+
+    # Disable xxlimited shared library if `--disable-test-modules`
+    if ver >= Version('3.12') and ver < Version('3.13'):
+      _patch(paths.python, paths.patch / 'python' / 'disable-shared-xxlimited_3.12.patch')
+
+    # Alternative build system
     check_and_extract(paths.python_z, paths.python_z_arx)
     os.symlink(paths.python_z, paths.python / 'zlib', target_is_directory = True)
-    shutil.copy(paths.patch / 'python' / 'xmake.lua', paths.python / 'xmake.lua')
+    if ver >= Version('3.13'):
+      shutil.copy(paths.patch / 'python' / 'xmake_3.13.lua', paths.python / 'xmake.lua')
+      _patch(paths.python, paths.patch / 'python' / 'fix-mingw-build_3.13.patch')
+    else:
+      shutil.copy(paths.patch / 'python' / 'xmake_3.12.lua', paths.python / 'xmake.lua')
+      _patch(paths.python, paths.patch / 'python' / 'fix-mingw-build_3.12.patch')
     shutil.copy(paths.patch / 'python' / 'python-config.sh', paths.python / 'python-config.sh')
-    _patch(paths.python, paths.patch / 'python' / 'fix-mingw-build.patch')
+
     _patch_done(paths.python)
 
 def prepare_source(ver: BranchProfile, paths: ProjectPaths):
