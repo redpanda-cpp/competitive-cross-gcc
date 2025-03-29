@@ -206,6 +206,57 @@ def _gmake(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   make_default('make', build_dir, config.jobs)
   shutil.copy(build_dir / 'make.exe', paths.mingw_prefix / 'bin' / 'mingw32-make.exe')
 
+def _licenses(ver: BranchProfile, paths: ProjectPaths):
+  license_dir = paths.mingw_prefix / 'share' / 'licenses'
+  ensure(license_dir)
+
+  ensure(license_dir / 'binutils')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.binutils / 'COPYING3', license_dir / 'binutils' / 'COPYING3')
+
+  ensure(license_dir / 'gcc')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.RUNTIME', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.gcc / file, license_dir / 'gcc' / file)
+
+  ensure(license_dir / 'gdb')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.gdb / file, license_dir / 'gdb' / file)
+
+  if ver.gettext:
+    ensure(license_dir / 'gettext-runtime-intl')
+    shutil.copy(paths.gettext / 'gettext-runtime' / 'intl' / 'COPYING.LIB', license_dir / 'gettext-runtime-intl' / 'COPYING.LIB')
+
+  ensure(license_dir / 'gmp')
+  if Version(ver.gmp).major < 6:
+    gmp_files = ['README', 'COPYING', 'COPYING.LIB']
+  else:
+    gmp_files = ['README', 'COPYINGv2', 'COPYINGv3', 'COPYING.LESSERv3']
+  for file in gmp_files:
+    shutil.copy(paths.gmp / file, license_dir / 'gmp' / file)
+
+  ensure(license_dir / 'make')
+  shutil.copy(paths.make / 'COPYING', license_dir / 'make' / 'COPYING')
+
+  ensure(license_dir / 'mingw-w64')
+  shutil.copy(paths.mingw / 'COPYING', license_dir / 'mingw-w64' / 'COPYING')
+
+  ensure(license_dir / 'mingw-w64-libraries-winpthreads')
+  shutil.copy(paths.mingw / 'mingw-w64-libraries' / 'winpthreads' / 'COPYING', license_dir / 'mingw-w64-libraries-winpthreads' / 'COPYING')
+
+  ensure(license_dir / 'mpc')
+  shutil.copy(paths.mpc / 'COPYING.LESSER', license_dir / 'mpc' / 'COPYING.LESSER')
+
+  ensure(license_dir / 'mpfr')
+  shutil.copy(paths.mpfr / 'COPYING.LESSER', license_dir / 'mpfr' / 'COPYING.LESSER')
+
+  if ver.python:
+    ensure(license_dir / 'python')
+    shutil.copy(paths.python / 'LICENSE', license_dir / 'python' / 'LICENSE')
+
+  if ver.python_z:
+    ensure(license_dir / 'zlib')
+    shutil.copy(paths.python_z / 'LICENSE', license_dir / 'zlib' / 'LICENSE')
+
 def build_ABB_toolchain(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   _binutils(ver, paths, config)
 
@@ -220,3 +271,5 @@ def build_ABB_toolchain(ver: BranchProfile, paths: ProjectPaths, config: argpars
   _gdb(ver, paths, config)
 
   _gmake(ver, paths, config)
+
+  _licenses(ver, paths)

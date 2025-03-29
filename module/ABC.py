@@ -233,6 +233,61 @@ def _gmake(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.
   make_default('make', build_dir, config.jobs)
   shutil.copy(build_dir / 'make.exe', paths.linux_prefix(arch) / 'bin' / 'mingw32-make.exe')
 
+def _licenses(arch: str, ver: BranchProfile, paths: ProjectPaths):
+  license_dir = paths.linux_prefix(arch) / 'share' / 'licenses'
+  ensure(license_dir)
+
+  ensure(license_dir / 'binutils')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.binutils / 'COPYING3', license_dir / 'binutils' / 'COPYING3')
+
+  ensure(license_dir / 'gcc')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.RUNTIME', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.gcc / file, license_dir / 'gcc' / file)
+
+  ensure(license_dir / 'gdb')
+  for file in ['README', 'COPYING', 'COPYING3', 'COPYING.LIB', 'COPYING3.LIB']:
+    shutil.copy(paths.gdb / file, license_dir / 'gdb' / file)
+
+  if ver.gettext:
+    ensure(license_dir / 'gettext-runtime-intl')
+    shutil.copy(paths.gettext / 'gettext-runtime' / 'intl' / 'COPYING.LIB', license_dir / 'gettext-runtime-intl' / 'COPYING.LIB')
+
+  ensure(license_dir / 'glibc')
+  for file in ['COPYING', 'COPYING.LIB', 'LICENSES']:
+    shutil.copy(paths.glibc / file, license_dir / 'glibc' / file)
+
+  ensure(license_dir / 'gmp')
+  if Version(ver.gmp).major < 6:
+    gmp_files = ['README', 'COPYING', 'COPYING.LIB']
+  else:
+    gmp_files = ['README', 'COPYINGv2', 'COPYINGv3', 'COPYING.LESSERv3']
+  for file in gmp_files:
+    shutil.copy(paths.gmp / file, license_dir / 'gmp' / file)
+
+  ensure(license_dir / 'linux')
+  shutil.copy(paths.kernel / 'COPYING', license_dir / 'linux' / 'COPYING')
+  if Version(ver.kernel) >= Version('4.19'):
+    shutil.copy(paths.kernel / 'LICENSES' / 'preferred' / 'GPL-2.0', license_dir / 'linux' / 'GPL-2.0')
+    shutil.copy(paths.kernel / 'LICENSES' / 'exceptions' / 'Linux-syscall-note', license_dir / 'linux' / 'Linux-syscall-note')
+
+  ensure(license_dir / 'make')
+  shutil.copy(paths.make / 'COPYING', license_dir / 'make' / 'COPYING')
+
+  ensure(license_dir / 'mpc')
+  shutil.copy(paths.mpc / 'COPYING.LESSER', license_dir / 'mpc' / 'COPYING.LESSER')
+
+  ensure(license_dir / 'mpfr')
+  shutil.copy(paths.mpfr / 'COPYING.LESSER', license_dir / 'mpfr' / 'COPYING.LESSER')
+
+  if ver.python:
+    ensure(license_dir / 'python')
+    shutil.copy(paths.python / 'LICENSE', license_dir / 'python' / 'LICENSE')
+
+  if ver.python_z:
+    ensure(license_dir / 'zlib')
+    shutil.copy(paths.python_z / 'LICENSE', license_dir / 'zlib' / 'LICENSE')
+
 def build_ABC_toolchain(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   _binutils(arch, ver, paths, config)
 
@@ -245,6 +300,8 @@ def build_ABC_toolchain(arch: str, ver: BranchProfile, paths: ProjectPaths, conf
   _gdb(arch, ver, paths, config)
 
   _gmake(arch, ver, paths, config)
+
+  _licenses(arch, ver, paths)
 
 def create_ABC_alias(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   bindir = paths.linux_prefix(arch) / 'bin'
