@@ -65,7 +65,7 @@ class BranchProfile:
 
 BRANCHES: dict[str, BranchProfile] = {
   '15': BranchProfile(
-    gcc = '15-20250323',
+    gcc = '15-20250330',
     rev = '0',
 
     binutils = '2.44',
