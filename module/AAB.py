@@ -6,7 +6,7 @@ import subprocess
 from module.debug import shell_here
 from module.path import ProjectPaths
 from module.profile import BranchProfile
-from module.util import cflags_A, cflags_B, configure, ensure, make_custom, make_default, make_destdir_install, make_install
+from module.util import cflags_A, cflags_B, configure, ensure, fix_libtool_absolute_reference, make_custom, make_default, make_destdir_install, make_install
 
 def _binutils(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   build_dir = paths.binutils / 'build-AAB'
@@ -201,15 +201,7 @@ def _mpfr(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   make_default('mpfr', build_dir, config.jobs)
   make_destdir_install('mpfr', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
 
-  # remove absolute reference from libtool
-  la_path = paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'libmpfr.la'
-  la_content = open(la_path, 'r').readlines()
-  with open(la_path, 'w') as f:
-    for line in la_content:
-      if line.startswith('dependency_libs='):
-        f.write("dependency_libs='-lgmp'\n")
-      else:
-        f.write(line)
+  fix_libtool_absolute_reference(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'libmpfr.la')
 
 def _mpc(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   build_dir = paths.mpc / 'build-AAB'
@@ -225,15 +217,35 @@ def _mpc(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   make_default('mpc', build_dir, config.jobs)
   make_destdir_install('mpc', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
 
-  # remove absolute reference from libtool
-  la_path = paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'libmpfr.la'
-  la_content = open(la_path, 'r').readlines()
-  with open(la_path, 'w') as f:
-    for line in la_content:
-      if line.startswith('dependency_libs='):
-        f.write("dependency_libs='-lmpfr -lgmp -lm'\n")
-      else:
-        f.write(line)
+  fix_libtool_absolute_reference(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'libmpc.la')
+
+def _iconv(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
+  v = Version(ver.iconv)
+  v_gcc = Version(ver.gcc)
+  build_dir = paths.iconv / 'build-AAB'
+  ensure(build_dir)
+
+  triplet_args = ['--host=x86_64-w64-mingw32']
+  c_extra = []
+
+  # libiconv 1.14 does not recognize 'x86_64-alpine-linux-musl'
+  if v >= Version('1.15'):
+    triplet_args.append(f'--build={config.build}')
+
+  # GCC 15 defaults to C23
+  if v_gcc.major >= 15 and v < Version('1.18'):
+    c_extra.append('-std=gnu11')
+
+  configure('iconv', build_dir, [
+    '--prefix=',
+    *triplet_args,
+    '--disable-nls',
+    '--enable-static',
+    '--disable-shared',
+    *cflags_B(c_extra = c_extra),
+  ])
+  make_default('iconv', build_dir, config.jobs)
+  make_destdir_install('iconv', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
 
 def _gettext(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   build_dir = paths.gettext / 'gettext-runtime' / 'build-AAB'
@@ -248,6 +260,8 @@ def _gettext(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace
   ])
   make_default('gettext', build_dir, config.jobs)
   make_destdir_install('gettext', build_dir, paths.x_prefix / 'x86_64-w64-mingw32')
+
+  fix_libtool_absolute_reference(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'libintl.la')
 
 def _python(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   res = subprocess.run([
@@ -298,6 +312,8 @@ def build_AAB_library(ver: BranchProfile, paths: ProjectPaths, config: argparse.
   _mpfr(ver, paths, config)
 
   _mpc(ver, paths, config)
+
+  _iconv(ver, paths, config)
 
   if ver.gettext:
     _gettext(ver, paths, config)

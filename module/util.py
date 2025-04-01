@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import logging
 import os
 from pathlib import Path
+import re
 import subprocess
 from typing import List
 
@@ -62,6 +63,28 @@ def configure(component: str, cwd: Path, args: List[str]):
 
 def ensure(path: Path):
   path.mkdir(parents = True, exist_ok = True)
+
+def fix_libtool_absolute_reference(la_path: Path):
+  with open(la_path, 'r') as f:
+    lines = f.readlines()
+  with open(la_path, 'w') as f:
+    for line in lines:
+      if line.startswith('dependency_libs='):
+        libs_pattern = re.compile(r"dependency_libs='(.*)'")
+        libs_value = re.search(libs_pattern, line).group(1)
+        libs = libs_value.split()
+        new_libs = []
+        for lib in libs:
+          if lib.startswith('/'):
+            lib_name = Path(lib).stem
+            if lib_name.startswith('lib'):
+              lib_name = lib_name[3:]
+            new_libs.append('-l' + lib_name)
+          else:
+            new_libs.append(lib)
+        f.write(f"dependency_libs='{' '.join(new_libs)}'\n")
+      else:
+        f.write(line)
 
 def fix_limits_h(limits_h: Path, gcc_src: Path):
   with open(limits_h, 'w') as f:

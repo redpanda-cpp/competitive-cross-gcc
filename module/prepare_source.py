@@ -261,6 +261,12 @@ def _gmp(ver: BranchProfile, paths: ProjectPaths):
   check_and_extract(paths.gmp, paths.gmp_arx)
   _patch_done(paths.gmp)
 
+def _iconv(ver: BranchProfile, paths: ProjectPaths):
+  url = f'https://ftpmirror.gnu.org/gnu/libiconv/{paths.iconv_arx.name}'
+  validate_and_download(paths.iconv_arx, url)
+  check_and_extract(paths.iconv, paths.iconv_arx)
+  _patch_done(paths.iconv)
+
 def _kernel(ver: BranchProfile, paths: ProjectPaths):
   v = Version(ver.kernel)
   url = f'https://cdn.kernel.org/pub/linux/kernel/v{v.major}.x/{paths.kernel_arx.name}'
@@ -339,6 +345,7 @@ def prepare_source(ver: BranchProfile, paths: ProjectPaths):
     _gettext(ver, paths)
   _glibc(ver, paths)
   _gmp(ver, paths)
+  _iconv(ver, paths)
   _kernel(ver, paths)
   _make(ver, paths)
   _mingw(ver, paths)

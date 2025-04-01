@@ -9,6 +9,7 @@ class BranchProfile:
   gettext: Optional[str]
   glibc: str
   gmp: str
+  iconv: str
   kernel: str
   make: str
   mingw: str
@@ -33,6 +34,7 @@ class BranchProfile:
     gettext: Optional[str],
     glibc: str,
     gmp: str,
+    iconv: str,
     kernel: str,
     make: str,
     mingw: str,
@@ -52,6 +54,7 @@ class BranchProfile:
     self.gettext = gettext
     self.glibc = glibc
     self.gmp = gmp
+    self.iconv = iconv
     self.kernel = kernel
     self.make = make
     self.mingw = mingw
@@ -73,6 +76,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = '0.24',
     glibc = '2.41',
     gmp = '6.3.0',
+    iconv = '1.17',
     kernel = '6.12.21',
     make = '4.4.1',
     mingw = '12.0.0',
@@ -94,6 +98,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = '0.23.1',
     glibc = '2.40',
     gmp = '6.3.0',
+    iconv = '1.17',
     kernel = '6.12.21',
     make = '4.4.1',
     mingw = '12.0.0',
@@ -115,6 +120,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.38',
     gmp = '6.3.0',
+    iconv = '1.17',
     kernel = '6.6.85',
     make = '4.4.1',
     mingw = '11.0.1',
@@ -136,6 +142,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.36',
     gmp = '6.2.1',
+    iconv = '1.17',
     kernel = '6.1.132',
     make = '4.4.1',
     mingw = '10.0.0',
@@ -157,6 +164,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.34',
     gmp = '6.2.1',
+    iconv = '1.16',
     kernel = '5.15.179',
     make = '4.3',
     mingw = '9.0.0',
@@ -178,6 +186,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.32',
     gmp = '6.2.1',
+    iconv = '1.16',
     kernel = '5.10.235',
     make = '4.3',
     mingw = '8.0.3',
@@ -199,6 +208,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.30',
     gmp = '6.1.2',
+    iconv = '1.16',
     kernel = '5.4.291',
     make = '4.2.1',
     mingw = '7.0.0',
@@ -220,6 +230,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.28',
     gmp = '6.1.2',
+    iconv = '1.15',
     kernel = '4.19.325',
     make = '4.2.1',
     mingw = '6.0.1',
@@ -241,6 +252,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.26',
     gmp = '6.1.2',
+    iconv = '1.15',
     kernel = '4.14.336',
     make = '4.2.1',
     mingw = '5.0.5',
@@ -262,6 +274,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.24',
     gmp = '6.1.2',
+    iconv = '1.14',
     kernel = '4.9.337',
     make = '4.2.1',
     mingw = '5.0.5',
@@ -283,6 +296,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.22',
     gmp = '6.1.2',
+    iconv = '1.14',
     kernel = '4.4.302',  # slightly postponed for annual LTS
     make = '4.1',
     mingw = '4.0.6',
@@ -304,8 +318,9 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.20',
     gmp = '5.1.3',
-    make = '4.1',
+    iconv = '1.14',
     kernel = '3.18.140',
+    make = '4.1',
     mingw = '3.3.0',
     mpc = '1.0.3',
     mpfr = '3.1.6',
@@ -325,6 +340,7 @@ BRANCHES: dict[str, BranchProfile] = {
     gettext = None,
     glibc = '2.18',
     gmp = '5.1.3',
+    iconv = '1.14',
     kernel = '3.12.74',
     make = '4.0',
     mingw = '3.3.0',

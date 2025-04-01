@@ -234,6 +234,9 @@ def _licenses(ver: BranchProfile, paths: ProjectPaths):
   for file in gmp_files:
     shutil.copy(paths.gmp / file, license_dir / 'gmp' / file)
 
+  ensure(license_dir / 'libiconv')
+  shutil.copy(paths.iconv / 'COPYING.LIB', license_dir / 'libiconv' / 'COPYING.LIB')
+
   ensure(license_dir / 'make')
   shutil.copy(paths.make / 'COPYING', license_dir / 'make' / 'COPYING')
 

@@ -265,6 +265,9 @@ def _licenses(arch: str, ver: BranchProfile, paths: ProjectPaths):
   for file in gmp_files:
     shutil.copy(paths.gmp / file, license_dir / 'gmp' / file)
 
+  ensure(license_dir / 'libiconv')
+  shutil.copy(paths.iconv / 'COPYING.LIB', license_dir / 'libiconv' / 'COPYING.LIB')
+
   ensure(license_dir / 'linux')
   shutil.copy(paths.kernel / 'COPYING', license_dir / 'linux' / 'COPYING')
   if Version(ver.kernel) >= Version('4.19'):

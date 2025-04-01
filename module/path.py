@@ -31,6 +31,7 @@ class ProjectPaths:
   gettext: Path
   glibc: Path
   gmp: Path
+  iconv: Path
   kernel: Path
   make: Path
   mingw: Path
@@ -45,6 +46,7 @@ class ProjectPaths:
   gettext_arx: Path
   glibc_arx: Path
   gmp_arx: Path
+  iconv_arx: Path
   kernel_arx: Path
   make_arx: Path
   mingw_arx: Path
@@ -137,6 +139,10 @@ class ProjectPaths:
       self.gmp_arx = self.assets / f'{gmp}.tar.zst'
     else:
       self.gmp_arx = self.assets / f'{gmp}.tar.xz'
+
+    iconv = f'libiconv-{ver.iconv}'
+    self.iconv = self.build / iconv
+    self.iconv_arx = self.assets / f'{iconv}.tar.gz'
 
     kernel = f'linux-{ver.kernel}'
     self.kernel = self.build / kernel
