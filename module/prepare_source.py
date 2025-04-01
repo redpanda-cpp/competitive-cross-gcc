@@ -223,6 +223,9 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths):
     elif v == Version('7.6.2'):
       _patch(paths.gdb, paths.patch / 'gdb' / 'backport-stub-termcap_7.6.2.patch')
 
+    # Fix iconv 'CP65001'
+    _patch(paths.gdb, paths.patch / 'gdb' / 'fix-iconv-cp65001.patch')
+
     # Fix pythondir
     if ver.python:
       _patch(paths.gdb, paths.patch / 'gdb' / 'fix-pythondir.patch')

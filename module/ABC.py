@@ -201,11 +201,15 @@ def _gdb(arch: str, ver: BranchProfile, paths: ProjectPaths, config: argparse.Na
   make_default('gdb', build_dir, config.jobs)
   make_destdir_install('gdb', build_dir, paths.linux_prefix(arch))
 
+  gdbinit = paths.linux_prefix(arch) / 'share' / 'gdb' / 'gdbinit'
+  with open(gdbinit, 'w') as f:
+    f.write('set target-charset UTF-8\n')
+
   if ver.python:
     shutil.copy(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'python.zip', paths.linux_prefix(arch) / 'lib' / 'python.zip')
     with open(paths.linux_prefix(arch) / 'bin' / 'gdb._pth', 'w') as f:
       f.write('../lib/python.zip\n')
-    with open(paths.linux_prefix(arch) / 'share' / 'gdb' / 'gdbinit', 'w') as f:
+    with open(gdbinit, 'w+') as f:
       f.write('python\n')
       f.write('from libstdcxx.v6.printers import register_libstdcxx_printers\n')
       f.write('register_libstdcxx_printers(None)\n')

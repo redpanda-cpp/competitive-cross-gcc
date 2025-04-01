@@ -174,11 +174,15 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
   make_default('gdb', build_dir, config.jobs)
   make_destdir_install('gdb', build_dir, paths.mingw_prefix)
 
+  gdbinit = paths.mingw_prefix / 'share' / 'gdb' / 'gdbinit'
+  with open(gdbinit, 'w') as f:
+    pass
+
   if ver.python:
     shutil.copy(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'python.zip', paths.mingw_prefix / 'lib' / 'python.zip')
     with open(paths.mingw_prefix / 'bin' / 'gdb._pth', 'w') as f:
       f.write('../lib/python.zip\n')
-    with open(paths.mingw_prefix / 'share' / 'gdb' / 'gdbinit', 'w') as f:
+    with open(gdbinit, 'w') as f:
       f.write('python\n')
       f.write('from libstdcxx.v6.printers import register_libstdcxx_printers\n')
       f.write('register_libstdcxx_printers(None)\n')
