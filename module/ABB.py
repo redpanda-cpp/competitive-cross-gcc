@@ -182,7 +182,7 @@ def _gdb(ver: BranchProfile, paths: ProjectPaths, config: argparse.Namespace):
     shutil.copy(paths.x_prefix / 'x86_64-w64-mingw32' / 'lib' / 'python.zip', paths.mingw_prefix / 'lib' / 'python.zip')
     with open(paths.mingw_prefix / 'bin' / 'gdb._pth', 'w') as f:
       f.write('../lib/python.zip\n')
-    with open(gdbinit, 'w') as f:
+    with open(gdbinit, 'a') as f:
       f.write('python\n')
       f.write('from libstdcxx.v6.printers import register_libstdcxx_printers\n')
       f.write('register_libstdcxx_printers(None)\n')
